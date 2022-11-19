@@ -1,0 +1,1 @@
+cmd_/usr/src/project3/part1/insperation.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /usr/src/project3/part1/insperation.ko /usr/src/project3/part1/insperation.o /usr/src/project3/part1/insperation.mod.o;  true
