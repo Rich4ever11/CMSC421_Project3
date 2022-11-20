@@ -1,11 +1,13 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/random.h>
  
 MODULE_LICENSE("GPL");
  
 static int __init qoute_generator(void) {
     unsigned randomNum;
-    randomNum = 1;
+    get_random_bytes(&randomNum, sizeof randomNum);
+    randomNum = (1u + (randomNum % 20u)) - 1u;
     static const char *quotes[20];
     quotes[0] = "\"Spread love everywhere you go. Let no one ever come to you without leaving happier.\" - Mother Teresa";
     quotes[1] = "\"When you reach the end of your rope, tie a knot in it and hang on.\" - Franklin D. Roosevelt";

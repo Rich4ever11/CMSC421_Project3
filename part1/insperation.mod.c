@@ -29,7 +29,9 @@ static const struct modversion_info ____versions[]
 __used __section("__versions") = {
 	{ 0xe28fa882, "module_layout" },
 	{ 0x5b8239ca, "__x86_return_thunk" },
+	{ 0xd0da656b, "__stack_chk_fail" },
 	{ 0x92997ed8, "_printk" },
+	{ 0x41ed3709, "get_random_bytes" },
 	{ 0xbdfb6dbb, "__fentry__" },
 };
 
