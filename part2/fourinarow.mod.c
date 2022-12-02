@@ -37,6 +37,7 @@ __used __section("__versions") = {
 	{ 0xcee0cc87, "__class_create" },
 	{ 0xe3ec2f2b, "alloc_chrdev_region" },
 	{ 0xe2d5255a, "strcmp" },
+	{ 0x1e6d26a8, "strstr" },
 	{ 0x85df9b6c, "strsep" },
 	{ 0x8522d6bc, "strncpy_from_user" },
 	{ 0x41ed3709, "get_random_bytes" },

@@ -53,16 +53,15 @@ computerTurn(char board[COLUMNLENGTH][ROWLENGTH], char computerPiece)
 {
     /*Declared Variables: Used for the positioning of the placed piece*/
     int rowPosition;
-    int colPosition;
-    unsigned randomNum;
+    unsigned colPosition;
 
     /*Set the coordinates to 0 at first*/
     rowPosition = 0;
     colPosition = 0;
     /*Get a random column position on the board to place your piece*/
     /*gets the random number*/
-    get_random_bytes(&randomNum, sizeof randomNum);
-    randomNum = (1u + (randomNum % 8u)) - 1u;
+    get_random_bytes(&colPosition, sizeof colPosition);
+    colPosition = (1u + (colPosition % 8u)) - 1u;
     /*Loop through the columns from the bottom*/
     for (rowPosition = ROWLENGTH - 1; rowPosition >= 0; rowPosition--) {
         /*Check if the row and column position is empty. If it is add that piece to the position*/
@@ -127,8 +126,15 @@ static ssize_t device_write(struct file *f, const char __user *buf, size_t len, 
     }
     command = strsep(&userInputPtr, " ");
     if (strcmp(command, "RESET") == 0) {
+        int row;
+    	int col;
     	command = strsep(&userInputPtr, " ");
-    	printk(KERN_ALERT "|%s|\n", command);
+    	
+    	for (row = 0; row < ROWLENGTH; row++) {
+    		for (col = 0; col < COLUMNLENGTH; col++) {
+    			gameBoard[row][col] = '0';
+    		}
+    	}  	
     	if (strcmp(command, "Y\n") == 0) {
     	    playerChoice = 0;
     	    computerChoice = 1;
@@ -142,18 +148,16 @@ static ssize_t device_write(struct file *f, const char __user *buf, size_t len, 
     	}
     	printk(KERN_ALERT "Player's Piece is %c\n", gamePieces[playerChoice]);
     	printk(KERN_ALERT "Computer's Piece is %c\n", gamePieces[computerChoice]);
-    	kfree(command);
     }
-    else if (strcmp(command, "BOARD") == 0) {
+    else if (strstr(command, "BOARD") != NULL) {
     	printk(KERN_ALERT "BOARD INPUT CAUGHT");
     }
     else if (strcmp(command, "DROPC") == 0) {
     	printk(KERN_ALERT "DROPC INPUT CAUGHT");
     }
-    else if (strcmp(command, "CTURN") == 0) {
+    else if (strstr(command, "CTURN") != NULL) {
     	computerTurn(gameBoard, gamePieces[computerChoice]);
-    	printk(KERN_ALERT "CTURN INPUT CAUGHT");
-    	kfree(command);
+    	printk(KERN_ALERT "Computer's Turn Preformed");
     }
     return len;
 }
@@ -200,7 +204,7 @@ static void __exit fourinarow_exit(void) {
     device_destroy(device_class, first);
     class_destroy(device_class);
     unregister_chrdev_region(first, 1);
-    printk(KERN_ALERT "Thank you for using the quote generator\n");
+    printk(KERN_ALERT "Thank you for playing four in a row!\n");
 }
  
 module_init(fourinarow_create);
