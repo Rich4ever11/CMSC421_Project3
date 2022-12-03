@@ -10,24 +10,28 @@
 #define COLUMNLENGTH 8
 #define ROWLENGTH 8
  
-/*players Choices*/
+#define BOARDNOTFOUND 0
+#define PLAYERTURN 1
+#define COMPUTERTURN 2
+#define WINNERFOUND 3
+
+static DECLARE_RWSEM(lockStruct);
+ 
+/*players and Computers Choice Variable (used for indexing the Game Pieces)*/
 static int playerChoice = 0;
 static int computerChoice = 0;
+/*Tracks who's turn is it along with if the board is not set or a winner has been established*/
 static int turnTracker = 0;
+static char winnerPiece = '0';
+
  
 /*Game board*/
 static char gameBoard[ROWLENGTH][COLUMNLENGTH] = {
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
-    {'0', '0', '0', '0', '0', '0', '0', '0'},
+    {'0', '0', '0', '0', '0', '0', '0', '0'}, {'0', '0', '0', '0', '0', '0', '0', '0'}, {'0', '0', '0', '0', '0', '0', '0', '0'},
+    {'0', '0', '0', '0', '0', '0', '0', '0'}, {'0', '0', '0', '0', '0', '0', '0', '0'}, {'0', '0', '0', '0', '0', '0', '0', '0'},
+    {'0', '0', '0', '0', '0', '0', '0', '0'}, {'0', '0', '0', '0', '0', '0', '0', '0'},
 };
-char columnLetterPositions[COLUMNLENGTH] = {'A', 'B', 'C', 'D', 'E', 'F', 'G',
-'H'};
+char columnLetterPositions[COLUMNLENGTH] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 /*Game Pieces*/
 static char *gamePieces = "YR";
  
@@ -88,9 +92,7 @@ int computerTurn(char board[COLUMNLENGTH][ROWLENGTH], char computerPiece) {
     return 0;
 }
  
-int
-playerTurn(char board[COLUMNLENGTH][ROWLENGTH], char playerPiece, char colLetter)
-{
+int playerTurn(char board[COLUMNLENGTH][ROWLENGTH], char playerPiece, char colLetter) {
     /*Declared Variables: Used for the positioning of the placed piece*/
     int rowPosition;
     int colPosition;
@@ -111,9 +113,70 @@ playerTurn(char board[COLUMNLENGTH][ROWLENGTH], char playerPiece, char colLetter
     return 0;
 }
  
+char checkWinner(char board[COLUMNLENGTH][ROWLENGTH]) {
+    /*Iterator Variables Created*/
+    int i; 
+    int j;
+    // check for a horizontal win
+    for (i = 0; i < ROWLENGTH; i++) {
+        for (j = 0; j < COLUMNLENGTH - 3; j++) {
+            /*Check all the none empty tiles going horizontally*/
+            if (board[i][j] != '0' && board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2] &&
+                board[i][j] == board[i][j + 3]) {
+                /*Declare a winner*/
+                turnTracker = WINNERFOUND;
+                /*Return the piece of the player that won*/
+                return board[i][j];
+            }
+        }
+    }
+ 
+    // checks for a vertical win
+    for (i = 0; i < ROWLENGTH - 3; i++) {
+        for (j = 0; j < COLUMNLENGTH; j++) {
+            /*Check all the none empty tiles going vertically*/
+            if (board[i][j] != '0' && board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j] &&
+                board[i][j] == board[i + 3][j]) {
+                /*Declare a winner*/
+                turnTracker = WINNERFOUND;
+                /*Return the piece of the player that won*/
+                return board[i][j];
+            }
+        }
+    }
+ 
+    // checks for a right diagonal win
+    for (i = 0; i < ROWLENGTH - 3; i++) {
+        for (j = 0; j < COLUMNLENGTH - 3; j++) {
+            /*Check all the none empty tiles going diagonally from the right*/
+            if (board[i][j] != '0' && board[i][j] == board[i + 1][j + 1] && board[i][j] == board[i + 2][j + 2] &&
+                board[i][j] == board[i + 3][j + 3]) {
+                /*Declare a winner*/
+                turnTracker = WINNERFOUND;
+                /*Return the piece of the player that won*/
+                return board[i][j];
+            }
+        }
+    }
+ 
+    // checks for a left diagonal win
+    for (i = 0; i < ROWLENGTH - 3; i++) {
+        for (j = 0; j < COLUMNLENGTH - 3; j++) {
+            /*Check all the none empty tiles going diagonally from the left*/
+            if (board[i][j] != '0' && board[i][j] == board[i + 1][j - 1] && board[i][j] == board[i + 2][j - 2] &&
+                board[i][j] == board[i + 3][j - 3]) {
+                /*Declare a winner*/
+                turnTracker = WINNERFOUND;
+                /*Return the piece of the player that won*/
+                return board[i][j];
+            }
+        }
+    }
+    return '0';
+}
+ 
 /*Device read functionality: ex. cat /dev/insperation */
-static ssize_t device_read(struct file *file, char __user *user_buffer,
-                           size_t size, loff_t *offset) {
+static ssize_t device_read(struct file *file, char __user *user_buffer, size_t size, loff_t *offset) {
     /*Assigned Variables*/
     char boardDisplay[255];
     ssize_t len;
@@ -142,13 +205,11 @@ static ssize_t device_read(struct file *file, char __user *user_buffer,
     len = strlen(boardDisplay);
     kfree(numBanner);
     kfree(boardPiece);
-    return simple_read_from_buffer(user_buffer, size, offset, boardDisplay,
-                                   len);
+    return simple_read_from_buffer(user_buffer, size, offset, boardDisplay, len);
 }
  
 /*Device write functionality: ex. echo 'hi' > /dev/insperation */
-static ssize_t device_write(struct file *f, const char __user *buf, size_t len,
-                            loff_t *off) {
+static ssize_t device_write(struct file *f, const char __user *buf, size_t len, loff_t *off) {
     /*Variable Declarations*/
     char user_input[256];
     int result_from;
@@ -156,9 +217,12 @@ static ssize_t device_write(struct file *f, const char __user *buf, size_t len,
     /*Detaching User Input*/
     char *command;
     char *userInputPtr;
+    /*Locking mechanism added for read and write*/
+    down_write(&lockStruct);
     /*Check if the buffer access is ok*/
     result_from = access_ok(buf, len);
     if (result_from == 0) {
+    	up_write(&lockStruct);
         return -EFAULT;
     }
     /*Get user input*/
@@ -173,61 +237,70 @@ static ssize_t device_write(struct file *f, const char __user *buf, size_t len,
         int row;
         int col;
         command = strsep(&userInputPtr, " ");
-        /*Reset the board to be empty*/
-        for (row = 0; row < ROWLENGTH; row++) {
-            for (col = 0; col < COLUMNLENGTH; col++) {
-                gameBoard[row][col] = '0';
-            }
-        }
         /*Set the players pieces*/
         if (strcmp(command, "Y\n") == 0) {
             playerChoice = 0;
             computerChoice = 1;
-            turnTracker = 1;
+            turnTracker = PLAYERTURN;
         } else if (strcmp(command, "R\n") == 0) {
             playerChoice = 1;
             computerChoice = 0;
-            turnTracker = 1;
+            turnTracker = PLAYERTURN;
         } else {
             printk(KERN_ALERT "Invalid Piece, Please try again (Y or R)");
-            turnTracker = 0;
+            if (turnTracker != WINNERFOUND) {
+                turnTracker = BOARDNOTFOUND;
+            }
+        }
+        /*Check if the player's turn has been established*/
+        if (turnTracker == PLAYERTURN) {
+            /*Reset the board to be empty*/
+            for (row = 0; row < ROWLENGTH; row++) {
+                for (col = 0; col < COLUMNLENGTH; col++) {
+                    gameBoard[row][col] = '0';
+                }
+            }
         }
         /*Display the current pieces*/
         printk(KERN_ALERT "Player's Piece is %c\n", gamePieces[playerChoice]);
-        printk(KERN_ALERT "Computer's Piece is %c\n",
-               gamePieces[computerChoice]);
+        printk(KERN_ALERT "Computer's Piece is %c\n", gamePieces[computerChoice]);
     } else if (strstr(command, "BOARD") != NULL) {
         printk(KERN_ALERT "BOARD INPUT CAUGHT");
     } else if (strcmp(command, "DROPC") == 0) {
-        printk(KERN_ALERT "DROPC INPUT CAUGHT");
-        if (turnTracker == 1) {
+        if (turnTracker == PLAYERTURN) {
             command = strsep(&userInputPtr, " ");
             playerTurn(gameBoard, gamePieces[playerChoice], command[0]);
-            turnTracker = 2;
+            turnTracker = COMPUTERTURN;
+            winnerPiece = checkWinner(gameBoard);
             printk(KERN_ALERT "Player's Turn Has Been Preformed");
-        } else if (turnTracker == 0) {
+        } else if (turnTracker == BOARDNOTFOUND) {
             printk(KERN_ALERT "BOARD AND PIECES HAVE NOT BEEN SET");
+        } else if (turnTracker == WINNERFOUND) {
+            printk(KERN_ALERT "THIS GAME HAS ENDED, THE WINNER IS %c\n", winnerPiece);
         } else {
             printk(KERN_ALERT "IT IS NOT THE PLAYERS TURN");
         }
     } else if (strstr(command, "CTURN") != NULL) {
-        if (turnTracker == 2) {
+        if (turnTracker == COMPUTERTURN) {
             computerTurn(gameBoard, gamePieces[computerChoice]);
-            turnTracker = 1;
+            turnTracker = PLAYERTURN;
+            winnerPiece = checkWinner(gameBoard);
             printk(KERN_ALERT "Computer's Turn Has Been Preformed");
-        } else if (turnTracker == 0) {
+        } else if (turnTracker == BOARDNOTFOUND) {
             printk(KERN_ALERT "BOARD AND PIECES HAVE NOT BEEN SET");
+        } else if (turnTracker == WINNERFOUND) {
+            printk(KERN_ALERT "THIS GAME HAS ENDED, THE WINNER IS %c\n", winnerPiece);
         } else {
             printk(KERN_ALERT "IT IS NOT THE COMPUTERS TURN");
         }
     }
+    up_write(&lockStruct);
     return len;
 }
  
 /*Declaration of the file_operations*/
 /*User can only currently read and write*/
-static struct file_operations fops = {.read = device_read,
-                                      .write = device_write};
+static struct file_operations fops = {.read = device_read, .write = device_write};
  
 /*Sets the permissions so that all users can read and write*/
 static int set_permissions(struct device *dev, struct kobj_uevent_env *env) {
