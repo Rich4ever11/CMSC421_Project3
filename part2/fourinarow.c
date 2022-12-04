@@ -307,11 +307,11 @@ static ssize_t device_write(struct file *f, const char __user *buf, size_t len, 
         int col;
         command = strsep(&userInputPtr, " ");
         /*Set the players pieces*/
-        if (strcmp(command, "Y\n") == 0) {
+        if (command[0] == 'Y') {
             playerChoice = 0;
             computerChoice = 1;
             turnTracker = PLAYERTURN;
-        } else if (strcmp(command, "R\n") == 0) {
+        } else if (command[0] == 'R') {
             playerChoice = 1;
             computerChoice = 0;
             turnTracker = PLAYERTURN;

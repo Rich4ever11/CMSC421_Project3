@@ -36,7 +36,6 @@ __used __section("__versions") = {
 	{ 0xb10dd8d4, "device_create" },
 	{ 0xcee0cc87, "__class_create" },
 	{ 0xe3ec2f2b, "alloc_chrdev_region" },
-	{ 0xe2d5255a, "strcmp" },
 	{ 0xce807a25, "up_write" },
 	{ 0x1e6d26a8, "strstr" },
 	{ 0x85df9b6c, "strsep" },
