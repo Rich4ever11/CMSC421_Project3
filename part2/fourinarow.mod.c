@@ -47,14 +47,14 @@ __used __section("__versions") = {
 	{ 0x9c6febfc, "add_uevent_var" },
 	{ 0xcbd4898c, "fortify_panic" },
 	{ 0xd0da656b, "__stack_chk_fail" },
-	{ 0x5b8239ca, "__x86_return_thunk" },
-	{ 0x619cb7dd, "simple_read_from_buffer" },
 	{ 0x37a0cba, "kfree" },
-	{ 0xa916b694, "strnlen" },
 	{ 0xf9c0b663, "strlcat" },
 	{ 0x3c3ff9fd, "sprintf" },
 	{ 0x183bd601, "kmem_cache_alloc_trace" },
 	{ 0xd1c97624, "kmalloc_caches" },
+	{ 0x5b8239ca, "__x86_return_thunk" },
+	{ 0x619cb7dd, "simple_read_from_buffer" },
+	{ 0xa916b694, "strnlen" },
 	{ 0xbdfb6dbb, "__fentry__" },
 };
 
