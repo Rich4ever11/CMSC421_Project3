@@ -53,7 +53,9 @@ __used __section("__versions") = {
 	{ 0xd1c97624, "kmalloc_caches" },
 	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0x619cb7dd, "simple_read_from_buffer" },
+	{ 0x53b954a2, "up_read" },
 	{ 0xa916b694, "strnlen" },
+	{ 0x668b19a1, "down_read" },
 	{ 0xbdfb6dbb, "__fentry__" },
 };
 
