@@ -1,0 +1,64 @@
+Program works by echoing commands (writing) into the device and then cating out (reading) the device. Once you preform a command and cat (read) the device
+it will tell you the result of the move/action. (cating continuestly just repeats the same output for the result of the previous command).
+
+List of Commands (each command sets up the *cat /dev/fourinarow* to display its specific output)
+
+  echo "DROPC A/n" > /dev/fourinarow - drops a piece in the board. The A can be any letter from A - H. This will allow for the piece to be dropped as
+  long as the space is avaliable.
+  
+    Result of Command After preforming cat /dev/fourinarow:
+    
+      -NOGAME : Displayed if the game has not been reset
+      -OOT : Displayed if it is not the current user's turn
+      -WIN : Displayed if the player has won
+      -TIE : Displayed if there is a tie and no one has won
+      -OK : Displayed if the move was successful.
+  
+  echo "CTURN/n" > /dev/fourinarow - Allows for the computer to take their turn. Their turn is completed randomly on any column.
+  
+    Result of Command After preforming cat /dev/fourinarow:
+    
+      -NOGAME : Displayed if the game has not been reset
+      -OOT : Displayed if it is not the current user's turn
+      -LOSE : Displayed if the computer has won
+      -TIE : Displayed if there is a tie and no one has won
+      -OK : Displayed if the move was successful.
+  
+  echo "RESET $/n" > /dev/fourinarow - resets the entire board to be empty and sets the players piece to be either R or Y depending on the value placed into $.
+    
+    Result of Command After preforming cat /dev/fourinarow:
+    
+      -OK : Displayed if the reset was successful 
+          (This displays even if the user enters a piece that is not R or Y - In this case the board is still reset but no player can make a move)
+      
+  echo "BOARD/n" > /dev/fourinarow - displays the board. 
+    
+    Result of Command After preforming cat /dev/fourinarow:
+    
+      -An Empty Board : Displayed if the reset was successful and no player has preformed there move. It is also displayed if the game has not started.
+      
+        ex.)  - - A B C D E F G H
+              -----------------
+              8 | 0 0 0 0 0 0 0 0
+              7 | 0 0 0 0 0 0 0 0
+              6 | 0 0 0 0 0 0 0 0
+              5 | 0 0 0 0 0 0 0 0
+              4 | 0 0 0 0 0 0 0 0
+              3 | 0 0 0 0 0 0 0 0
+              2 | 0 0 0 0 0 0 0 0
+              1 | 0 0 0 0 0 0 0 0
+      
+      -Current Game State : Displayed if there is an active game and players are currently making there moves
+      
+        ex.)  - - A B C D E F G H
+              -----------------
+              8 | 0 0 0 0 0 0 0 0
+              7 | 0 0 0 0 0 0 0 0
+              6 | 0 0 0 0 0 0 0 0
+              5 | 0 0 0 0 0 0 0 0
+              4 | 0 0 0 0 0 0 0 0
+              3 | Y 0 0 0 0 0 0 0
+              2 | R R 0 0 0 0 0 0
+              1 | R Y 0 0 0 0 0 0
+
+
